@@ -87,6 +87,7 @@ SCH_MINUTE=
 2. 开始抓包，并打开什么值得买 APP
 3. 过滤域名为`user-api.smzdm.com`的 post 请求
 4. 点击右上角分享，复制 cURL，转换 curl 请求为 python 格式，[方法](https://curlconverter.com/)
+5. 抓包地址：https://user-api.smzdm.com/checkin   这里面信息都齐全。
 
 ## 更新日志
 
