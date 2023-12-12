@@ -1,17 +1,27 @@
-# .github/workflows/sync.yml
-name: Sync Fork
-
+name: smzdm
 on:
-  push: 
   schedule:
-    - cron: '* */3 * * *' 
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+  watch:
+    types: started
+  repository_dispatch:
+    types: sync-smzdm
 jobs:
   repo-sync:
+    env:
+      PAT: ${{ secrets.PAT }} 
     runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
     steps:
-      - uses: TG908/fork-sync@v1.6.3
+      - uses: actions/checkout@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          owner: Chasing66
-          head: main 
-          base: main 
+          persist-credentials: false
+      - name: sync smzdm
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://github.com/Chasing66/smzdm_bot.git"
+          source_branch: "main"
+          destination_branch: "main"
+          github_token: ${{ secrets.PAT }}
