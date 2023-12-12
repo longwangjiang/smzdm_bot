@@ -1,4 +1,4 @@
-name: smzdm
+name: smzdm-checkin
 on:
   schedule:
     - cron: '30 7 * * *'
@@ -6,7 +6,7 @@ on:
   watch:
     types: started
   repository_dispatch:
-    types: sync-smzdm
+    types: sync-smzdm-checkin
 jobs:
   repo-sync:
     env:
@@ -17,7 +17,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           persist-credentials: false
-      - name: sync smzdm
+
+      - name: sync zmzdm-check-in
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
