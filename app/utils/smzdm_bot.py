@@ -28,10 +28,13 @@ class SmzdmBot:
         cookies_dict = {k: v for k, v in re.findall("(.*?)=(.*?);", self.cookies)}
         return cookies_dict
 
+    def _get_version(self):
+        return self.cookies_dict.get("device_smzdm_version") or self.cookies_dict.get("v", "10.4.26")
+
     def _user_agent(self):
         try:
             device_smzdm = self.cookies_dict["device_smzdm"]
-            device_smzdm_version = self.cookies_dict["device_smzdm_version"]
+            device_smzdm_version = self._get_version()
             device_smzdm_version_code = self.cookies_dict["device_smzdm_version_code"]
             device_system_version = self.cookies_dict["device_system_version"]
             device_type = self.cookies_dict["device_type"]
@@ -77,7 +80,7 @@ class SmzdmBot:
             "weixin": "1",
             "captcha": "",
             "f": self.cookies_dict["device_smzdm"],
-            "v": self.cookies_dict["device_smzdm_version"],
+            "v": self._get_version(),
             "touchstone_event": "",
             "time": self._timestamp() * 1000,
             "token": self.cookies_dict["sess"],
