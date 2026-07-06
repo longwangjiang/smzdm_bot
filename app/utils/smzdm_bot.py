@@ -29,6 +29,7 @@ class SmzdmBot:
         return cookies_dict
 
     def _get_version(self):
+        # 兼容新旧版本APP: 旧版用 device_smzdm_version, 新版(v11.1.80+)用 v
         return self.cookies_dict.get("device_smzdm_version") or self.cookies_dict.get("v", "10.4.26")
 
     def _user_agent(self):
