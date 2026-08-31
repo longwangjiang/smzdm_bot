@@ -146,6 +146,7 @@ class SmzdmDailyTasks:
             return ""
 
     def lucky_house(self) -> str:
+        msg = ""
         msg += self.task_lottery()
         msg += self.crowd_lottery()
         return msg
