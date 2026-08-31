@@ -22,27 +22,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r app/requirements.txt
 
-      - name: Debug Cookie
-        env:
-          ANDROID_COOKIE: ${{ secrets.ANDROID_COOKIE }}
-        run: |
-          echo "Cookie length: ${#ANDROID_COOKIE}"
-          echo "Cookie first 50 chars: ${ANDROID_COOKIE:0:50}"
-
-      - name: Test Checkin
-        env:
-          ANDROID_COOKIE: ${{ secrets.ANDROID_COOKIE }}
-          SK: ${{ secrets.SK }}
-        run: python -c "
-          import os, sys
-          sys.path.insert(0, 'app')
-          from utils.smzdm_bot import SmzdmBot
-          bot = SmzdmBot(ANDROID_COOKIE=os.environ['ANDROID_COOKIE'], SK=os.environ.get('SK', ''))
-          resp = bot.request('POST', 'https://user-api.smzdm.com/checkin')
-          print('Status:', resp.status_code)
-          print('Response:', resp.text)
-        "
-
       - name: Working
         env:
           ANDROID_COOKIE: ${{ secrets.ANDROID_COOKIE }}
