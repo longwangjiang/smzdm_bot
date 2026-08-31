@@ -22,6 +22,7 @@ class SmzdmDailyTasks:
 
             for task in tasks:
                 result = self._execute_task(task)
+                logger.info(f"任务结果: {task.get('task_name', '未知')}: {result[:50] if result else '空'}")
                 if result:
                     msg += f"{result}\n"
         except Exception as e:
@@ -50,6 +51,7 @@ class SmzdmDailyTasks:
         task_name = task.get("task_name", "未命名任务")
         task_status = task.get("task_status", 0)
         event_type = task.get("task_event_type", "")
+        logger.info(f"任务: {task_name}, 状态: {task_status}, 事件: {event_type}")
 
         if task_status == 3:
             logger.info(f"领取奖励: {task_name}")
@@ -68,28 +70,33 @@ class SmzdmDailyTasks:
         return ""
 
     def _browse_article_task(self, task: dict, task_id: str, task_name: str) -> str:
-        article_id = task.get("article_id", "")
-        if not article_id or article_id == "0":
+        article_id = str(task.get("article_id", "") or "")
+        if article_id == "0":
+            article_id = ""
+        if not article_id:
             redirect = task.get("task_redirect_url", {})
-            article_id = redirect.get("link_val", "")
+            article_id = str(redirect.get("link_val", "") or "")
+            if article_id == "0":
+                article_id = ""
 
         if not article_id:
-            return f"跳过: {task_name} (无文章ID)"
+            return ""
 
         logger.info(f"浏览文章 {article_id}...")
         time.sleep(random.randint(15, 25))
 
         try:
-            self.bot.request("POST", "https://user-api.smzdm.com/task/event_view_article_sync", extra_data={
+            resp = self.bot.request("POST", "https://user-api.smzdm.com/task/event_view_article_sync", extra_data={
                 "article_id": article_id,
                 "channel_id": "1",
                 "task_id": task_id,
             })
+            logger.info(f"浏览结果: {resp.status_code} - {resp.text[:100]}")
             time.sleep(random.randint(3, 6))
             return self._claim_reward(task_id, task_name)
         except Exception as e:
             logger.error(f"浏览任务失败: {e}")
-            return f"失败: {task_name}"
+            return ""
 
     def _follow_task(self, task: dict, task_id: str, task_name: str) -> str:
         logger.info(f"执行关注任务: {task_name}")
