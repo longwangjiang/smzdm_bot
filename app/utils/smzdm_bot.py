@@ -1,22 +1,54 @@
 import hashlib
 import re
 import time
+import base64
 from random import randint
 from urllib.parse import unquote
 
 import requests
 
+try:
+    from Crypto.Cipher import DES
+    from Crypto.Util.Padding import pad
+    HAS_CRYPTO = True
+except ImportError:
+    HAS_CRYPTO = False
+
 
 class SmzdmBot:
     SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC"
+    SK_KEY = "geZm53XAspb02exN"
 
     def __init__(self, ANDROID_COOKIE: str, SK=None, **kwargs):
         self.cookies = unquote(ANDROID_COOKIE)
-        self.sk = SK
         self.cookies_dict = self._cookies_to_dict()
+
+        if SK:
+            self.sk = SK
+        else:
+            self.sk = self._generate_sk()
 
         self.session = requests.Session()
         self.session.headers.update(self._headers())
+
+    def _generate_sk(self):
+        if not HAS_CRYPTO:
+            logger.warning("pycryptodome not installed, cannot generate SK")
+            return ""
+        try:
+            smzdm_id = self.cookies_dict.get("smzdm_id", "")
+            device_id = self.cookies_dict.get("pr_device_id", "") or self.cookies_dict.get("device_rid", "")
+            if not smzdm_id or not device_id:
+                logger.warning("Cannot generate SK: missing smzdm_id or device_id")
+                return ""
+            des_key = self.SK_KEY.encode()[:8]
+            plaintext = (smzdm_id + device_id).encode()
+            cipher = DES.new(des_key, DES.MODE_ECB)
+            ciphertext = cipher.encrypt(pad(plaintext, 8))
+            return base64.b64encode(ciphertext).decode()
+        except Exception as e:
+            logger.error(f"Failed to generate SK: {e}")
+            return ""
 
     def _timestamp(self):
         sleep = randint(1, 5)

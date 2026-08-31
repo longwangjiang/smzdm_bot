@@ -146,6 +146,29 @@ class SmzdmDailyTasks:
             return ""
 
     def lucky_house(self) -> str:
+        msg += self.task_lottery()
+        msg += self.crowd_lottery()
+        return msg
+
+    def task_lottery(self) -> str:
+        msg = "\n===== 任务抽奖 =====\n"
+        try:
+            resp = self.bot.request("POST", "https://user-api.smzdm.com/task/lottery")
+            if resp.status_code == 200:
+                data = resp.json().get("data", {})
+                if isinstance(data, dict):
+                    result = data.get("gift_name") or data.get("description") or resp.json().get("error_msg", "抽奖完成")
+                    msg += f"抽奖结果: {result}\n"
+                else:
+                    msg += "没有抽奖机会\n"
+            else:
+                msg += "抽奖失败\n"
+        except Exception as e:
+            logger.error(f"任务抽奖失败: {e}")
+            msg += "抽奖失败\n"
+        return msg
+
+    def crowd_lottery(self) -> str:
         msg = "\n===== 幸运屋 =====\n"
         try:
             resp = self.bot.session.get(
