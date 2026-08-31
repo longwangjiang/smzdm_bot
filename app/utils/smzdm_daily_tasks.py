@@ -64,7 +64,8 @@ class SmzdmDailyTasks:
         if event_type == "interactive.view.article":
             return self._browse_article_task(task, task_id, task_name)
         elif event_type == "interactive.follow.user":
-            return self._follow_task(task, task_id, task_name)
+            logger.info(f"跳过关注任务: {task_name} (API暂不支持)")
+            return ""
         elif event_type.startswith("publish."):
             logger.info(f"跳过发布任务: {task_name}")
             return ""
@@ -110,22 +111,25 @@ class SmzdmDailyTasks:
         time.sleep(random.randint(5, 10))
 
         try:
-            resp = self.bot.request("POST", "https://dingyue-api.smzdm.com/dy/user/dingyue/tuijian_search", extra_data={
+            resp = self.bot.request("POST", "https://user-api.smzdm.com/dingyue/search", extra_data={
                 "type": "user",
             })
+            logger.info(f"搜索推荐用户: {resp.status_code}")
             if resp.status_code == 200:
                 data = resp.json().get("data", {})
                 users = [u for u in data.get("rows", []) if u.get("type") == "user"]
+                logger.info(f"找到 {len(users)} 个推荐用户")
                 if users:
                     user = random.choice(users)
                     user_id = user.get("keyword_id") or user.get("smzdm_id")
                     if user_id:
-                        self.bot.request("POST", "https://dingyue-api.smzdm.com/dingyue/create", extra_data={
+                        logger.info(f"关注用户 {user_id}")
+                        self.bot.request("POST", "https://user-api.smzdm.com/dingyue/create", extra_data={
                             "type": "user",
                             "keyword": user_id,
                         })
                         time.sleep(random.randint(5, 10))
-                        self.bot.request("POST", "https://dingyue-api.smzdm.com/dingyue/destroy", extra_data={
+                        self.bot.request("POST", "https://user-api.smzdm.com/dingyue/destroy", extra_data={
                             "type": "user",
                             "keyword": user_id,
                         })
