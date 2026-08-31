@@ -33,7 +33,7 @@ class SmzdmTasks:
             🏅补签卡: {cards}"""
             return msg
         else:
-            logger.error("Faile to sign in")
+            logger.error(f"Failed to sign in, status: {resp.status_code}, response: {resp.text}")
             msg = "Fail to login in"
             return msg
 

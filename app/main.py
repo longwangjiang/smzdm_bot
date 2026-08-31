@@ -23,6 +23,8 @@ def load_conf():
         conf_kwargs.update({"toml_conf": True})
     elif os.environ.get("ANDROID_COOKIE", None):
         logger.info("Get configration from env")
+        cookie = os.environ.get("ANDROID_COOKIE")
+        logger.info(f"Cookie length: {len(cookie)}")
         conf_kwargs = {
             "SK": os.environ.get("SK"),
             "ANDROID_COOKIE": os.environ.get("ANDROID_COOKIE"),
