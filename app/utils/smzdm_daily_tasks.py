@@ -65,6 +65,9 @@ class SmzdmDailyTasks:
             return self._browse_article_task(task, task_id, task_name)
         elif event_type == "interactive.follow.user":
             return self._follow_task(task, task_id, task_name)
+        elif event_type.startswith("publish."):
+            logger.info(f"跳过发布任务: {task_name}")
+            return ""
 
         logger.info(f"跳过不支持的任务: {task_name} (事件: {event_type})")
         return ""
@@ -82,13 +85,17 @@ class SmzdmDailyTasks:
         if not article_id:
             return ""
 
-        logger.info(f"浏览文章 {article_id}...")
+        channel_id = str(task.get("channel_id", "") or "1")
+        if channel_id == "0":
+            channel_id = "1"
+
+        logger.info(f"浏览文章 {article_id}, 频道 {channel_id}...")
         time.sleep(random.randint(15, 25))
 
         try:
             resp = self.bot.request("POST", "https://user-api.smzdm.com/task/event_view_article_sync", extra_data={
                 "article_id": article_id,
-                "channel_id": "1",
+                "channel_id": channel_id,
                 "task_id": task_id,
             })
             logger.info(f"浏览结果: {resp.status_code} - {resp.text[:100]}")
